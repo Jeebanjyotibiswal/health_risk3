@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page_title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-blue: #1a73e8;
+      --medical-blue: #4285f4;
+      --light-blue: #e8f0fe;
+      --white: #ffffff;
+      --light-gray: #f5f5f5;
+      --medium-gray: #e0e0e0;
+      --dark-gray: #5f6368;
+      --success-green: #34a853;
+      --warning-orange: #f9ab00;
+      --danger-red: #ea4335;
+      --text-dark: #202124;
+      --text-medium: #3c4043;
+      --text-light: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light-blue);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin: 30px 0 10px;
+      font-size: 2.2rem;
+      text-align: center;
+      color: var(--primary-blue);
+      font-weight: 600;
+    }
+
+    .result-card {
+      background: var(--white);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      margin: 20px;
+      max-width: 650px;
+      width: 90%;
+      border: 1px solid var(--medium-gray);
+    }
+
+    .result-card p, .result-card li {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-medium);
+    }
+
+    .result-card strong {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .result-card ul {
+      padding-left: 20px;
+      margin: 15px 0;
+    }
+
+    .result-card li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 25px;
+    }
+
+    .result-card li:before {
+      content: "\f05a";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      color: var(--medical-blue);
+      font-size: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 5px 0 5px;
+      padding: 12px 25px;
+      border-radius: 8px;
+      background: var(--primary-blue);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn:hover {
+      background: #0d5bba;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn i {
+      margin-right: 8px;
+      font-size: 0.9em;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .risk-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-left: 8px;
+      font-size: 14px;
+      color: white;
+    }
+
+    .low-risk {
+      background-color: var(--success-green);
+    }
+
+    .medium-risk {
+      background-color: var(--warning-orange);
+    }
+
+    .high-risk {
+      background-color: var(--danger-red);
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 20px;
+      font-size: 13px;
+      text-align: center;
+      color: var(--dark-gray);
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .info-item i {
+      width: 24px;
+      text-align: center;
+      margin-right: 12px;
+      color: var(--primary-blue);
+      margin-top: 3px;
+    }
+
+    .section-title {
+      color: var(--primary-blue);
+      font-weight: 600;
+      margin: 20px 0 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--medium-gray);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+        padding: 0 15px;
+      }
+
+      .result-card {
+        padding: 20px 15px;
+        margin: 15px 0;
+      }
+
+      .btn {
+        padding: 10px 18px;
+        font-size: 14px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+        margin: 6px 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .result-card p, .result-card li {
+        font-size: 15px;
+      }
+
+      .info-item {
+        flex-direction: column;
+      }
+
+      .info-item i {
+        margin-bottom: 5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1><i class="fas fa-heartbeat" style="color: var(--danger-red);"></i> Health Risk Assessment Report</h1>
+
+  <div class="result-card">
+    <div class="info-item">
+      <i class="fas fa-notes-medical"></i>
+      <div>
+        <p><strong>Risk Level:</strong>
+          <span class="risk-level
+            {% if risk_level == 'Low' %}low-risk
+            {% elif risk_level == 'Medium' %}medium-risk
+            {% else %}high-risk
+            {% endif %}">
+            <i class="fas fa-{% if risk_level == 'Low' %}check-circle{% elif risk_level == 'Medium' %}exclamation-triangle{% else %}skull-crossbones{% endif %}"></i>
+            {{ risk_level }}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <i class="fas fa-chart-pie"></i>
+      <div>
+        <p><strong>Prediction Score:</strong> {{ prediction }}%</p>
+        <div style="background: var(--medium-gray); height: 6px; border-radius: 3px; margin-top: 5px; width: 100%;">
+          <div style="background:
+            {% if risk_level == 'Low' %}var(--success-green)
+            {% elif risk_level == 'Medium' %}var(--warning-orange)
+            {% else %}var(--danger-red)
+            {% endif %};
+            height: 100%; border-radius: 3px; width: {{ prediction }}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <i class="fas fa-stethoscope"></i>
+      <div>
+        <p><strong>Recommendation:</strong> {{ recommendation }}</p>
+      </div>
+    </div>
+
+    <div class="info-item">
+      <i class="fas fa-user-md"></i>
+      <div>
+        <p><strong>Age:</strong> {{ age }}</p>
+      </div>
+    </div>
+
+    <h3 class="section-title"><i class="fas fa-clipboard-list"></i> Key Risk Factors</h3>
+    <ul>
+      {% for factor in top_factors %}
+        <li>{{ factor }}</li>
+      {% endfor %}
+    </ul>
+
+    <h3 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Next Steps</h3>
+    <ul>
+      <li>Schedule a follow-up with your primary care physician</li>
+      <li>Consider lifestyle modifications based on your risk factors</li>
+      <li>Monitor any symptoms and report changes to your doctor</li>
+    </ul>
+
+    <div class="btn-group">
+      <form action="/download_report" method="POST">
+        <input type="hidden" name="prediction" value="{{ prediction }}">
+        <input type="hidden" name="risk_level" value="{{ risk_level }}">
+        <input type="hidden" name="recommendation" value="{{ recommendation }}">
+        <input type="hidden" name="age" value="{{ age }}">
+        {% for factor in top_factors %}
+          <input type="hidden" name="top_factors" value="{{ factor }}">
+        {% endfor %}
+        <button type="submit" class="btn">
+          <i class="fas fa-file-medical"></i> Download Full Report
+        </button>
+      </form>
+
+      <a href="/" class="btn" style="background: var(--dark-gray);">
+        <i class="fas fa-home"></i> Return Home
+      </a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p><i class="fas fa-shield-alt"></i> <strong>Confidential Medical Report</strong> | © 2025 HealthRiskPro</p>
+    <p style="font-size: 0.8em; margin-top: 8px; color: var(--dark-gray);">
+      This report is not a substitute for professional medical advice. Please consult your physician.
+    </p>
+  </div>
+
+</body>
+</html>

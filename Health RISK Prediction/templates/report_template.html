@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }}</title>
+  <style>
+    :root {
+      --primary-color: #4285f4;
+      --danger-color: #ea4335;
+      --warning-color: #fbbc05;
+      --success-color: #34a853;
+      --text-color: #333;
+      --light-gray: #f5f5f5;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--light-gray);
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+    
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    h3 {
+      margin: 25px 0 15px;
+      color: var(--primary-color);
+    }
+    
+    .result-card {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .result-item {
+      flex: 1;
+      min-width: 200px;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      background: var(--light-gray);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .risk-level {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .high-risk {
+      color: var(--danger-color);
+    }
+    
+    .medium-risk {
+      color: var(--warning-color);
+    }
+    
+    .low-risk {
+      color: var(--success-color);
+    }
+    
+    ul {
+      padding-left: 20px;
+      margin-bottom: 25px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    button, .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-download {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-download:hover {
+      background-color: #3367d6;
+      transform: translateY(-2px);
+    }
+    
+    .btn-back {
+      background-color: #e0e0e0;
+      color: var(--text-color);
+    }
+    
+    .btn-back:hover {
+      background-color: #d0d0d0;
+    }
+    
+    .progress-container {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: var(--border-radius);
+      margin: 15px 0;
+      height: 20px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      border-radius: var(--border-radius);
+      background-color: var(--primary-color);
+      width: 0;
+      transition: width 1s ease-in-out;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .result-item {
+        min-width: 100%;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      button, .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Health Risk Prediction</h1>
+    
+    <div class="result-card">
+      <div class="result-item">
+        <p><strong>Risk Level:</strong> 
+          <span class="risk-level {{ risk_level|lower|replace(' ', '-') }}">{{ risk_level }}</span>
+        </p>
+      </div>
+      
+      <div class="result-item">
+        <p><strong>Prediction Score:</strong> <span id="prediction-value">{{ prediction }}%</span></p>
+        <div class="progress-container">
+          <div class="progress-bar" id="risk-progress"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="result-item">
+      <p><strong>Recommendation:</strong> {{ recommendation }}</p>
+    </div>
+
+    <h3>Top Risk Factors:</h3>
+    <ul>
+      {% for factor in top_factors %}
+        <li>{{ factor }}</li>
+      {% endfor %}
+    </ul>
+
+    <p><strong>Age:</strong> {{ age }}</p>
+
+    <div class="actions">
+      <form action="/download_report" method="POST" class="download-form">
+        <input type="hidden" name="prediction" value="{{ prediction }}">
+        <input type="hidden" name="risk_level" value="{{ risk_level }}">
+        <input type="hidden" name="recommendation" value="{{ recommendation }}">
+        <input type="hidden" name="age" value="{{ age }}">
+        {% for factor in top_factors %}
+          <input type="hidden" name="top_factors" value="{{ factor }}">
+        {% endfor %}
+        <button type="submit" class="btn-download">Download Report (PDF)</button>
+      </form>
+
+      <a href="/" class="btn btn-back">Go Back</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate the progress bar
+      const prediction = {{ prediction }};
+      const progressBar = document.getElementById('risk-progress');
+      
+      // Set timeout to allow CSS to load before animation
+      setTimeout(() => {
+        progressBar.style.width = prediction + '%';
+        
+        // Change color based on risk level
+        if (prediction > 70) {
+          progressBar.style.backgroundColor = '#ea4335'; // red
+        } else if (prediction > 30) {
+          progressBar.style.backgroundColor = '#fbbc05'; // yellow
+        } else {
+          progressBar.style.backgroundColor = '#34a853'; // green
+        }
+      }, 300);
+      
+      // Add animation to elements
+      const items = document.querySelectorAll('.result-item');
+      items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = `all 0.5s ease ${index * 0.1}s`;
+        
+        setTimeout(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, 100);
+      });
+      
+      // Add confirmation to download button
+      const downloadForm = document.querySelector('.download-form');
+      downloadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (confirm('Would you like to download your health risk report as PDF?')) {
+          this.submit();
+        }
+      });
+    });
+    
+    // Responsive adjustments
+    window.addEventListener('resize', function() {
+      // You can add any responsive adjustments here if needed
+    });
+  </script>
+</body>
+</html>

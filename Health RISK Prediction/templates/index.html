@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3771/3771337.png" type="image/png">
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --success: #4caf50;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .form-section {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .form-section:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .header-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header-icon {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+        
+        .header-icon:hover {
+            transform: scale(1.05);
+        }
+        
+        h2 {
+            font-weight: 700;
+            color: var(--secondary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: var(--primary);
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .form-label i {
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.25rem rgba(79, 195, 247, 0.25);
+        }
+        
+        .form-check-label {
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .form-check-input:checked + .form-check-label {
+            background-color: rgba(79, 195, 247, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            border-radius: 50px;
+            padding: 14px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
+        }
+        
+        .btn-primary i {
+            margin-right: 10px;
+        }
+        
+        .alert {
+            border-radius: 15px;
+            border-left: 5px solid;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .alert-info {
+            background-color: rgba(79, 195, 247, 0.1);
+            border-color: var(--accent);
+            color: var(--secondary);
+        }
+        
+        .risk-meter {
+            height: 25px;
+            border-radius: 12px;
+            background: #e0e0e0;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .risk-level {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease-in-out;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        
+        .risk-factors {
+            margin-top: 20px;
+        }
+        
+        .factor-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background-color: rgba(0,0,0,0.03);
+        }
+        
+        .factor-item i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary);
+            font-size: 14px;
+            margin-top: auto;
+            background-color: rgba(255,255,255,0.7);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-section {
+                padding: 25px;
+                border-radius: 20px;
+            }
+            
+            .header-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Custom radio button styling */
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .radio-option {
+            position: relative;
+            flex: 1;
+        }
+        
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .radio-label {
+            display: block;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        
+        .radio-option input:checked + .radio-label {
+            border-color: var(--accent);
+            background-color: rgba(79, 195, 247, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .radio-option input:focus + .radio-label {
+            box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="header-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/3771/3771337.png" alt="Doctor Icon" class="header-icon">
+        <h2><i class="fas fa-heartbeat"></i> Health Risk Predictor</h2>
+        <p class="subtitle">Assess your health risks with our AI-powered analysis</p>
+    </div>
+
+    <form action="/predict" method="POST" class="form-section">
+        <div class="row">
+            {% for symptom in symptoms %}
+            <div class="mb-4 col-md-6">
+                <label class="form-label">
+                    <i class="fas fa-{% if 'pain' in symptom.lower() %}exclamation-circle{% elif 'fatigue' in symptom.lower() %}tired{% else %}stethoscope{% endif %}"></i>
+                    {{ symptom }}
+                </label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="{{ symptom }}" value="1" id="{{ symptom }}_yes" required>
+                        <label for="{{ symptom }}_yes" class="radio-label">
+                            <i class="fas fa-check-circle"></i> Yes
+                        </label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="{{ symptom }}" value="0" id="{{ symptom }}_no">
+                        <label for="{{ symptom }}_no" class="radio-label">
+                            <i class="fas fa-times-circle"></i> No
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Age -->
+        <div class="mb-4">
+            <label for="ageInput" class="form-label">
+                <i class="fas fa-birthday-cake"></i> Age
+            </label>
+            <input type="number" id="ageInput" name="Age" class="form-control" min="1" max="120" required>
+        </div>
+
+        <!-- Additional Fields -->
+        <div class="mb-4">
+            <label for="bmiInput" class="form-label">
+                <i class="fas fa-weight"></i> BMI (Body Mass Index)
+            </label>
+            <input type="number" id="bmiInput" name="BMI" class="form-control" step="0.1" min="10" max="50" required>
+        </div>
+
+        <!-- Predict button -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Predict My Risk
+            </button>
+        </div>
+    </form>
+
+    <!-- Display result -->
+    {% if prediction %}
+    <div class="alert alert-info">
+        <h4 class="text-center"><i class="fas fa-clipboard-check"></i> Your Health Risk Assessment</h4>
+        
+        <div class="risk-meter">
+            <div class="risk-level" style="width: {{ prediction }}%; background: {% if prediction > 70 %}linear-gradient(to right, #f44336, #e53935){% elif prediction > 30 %}linear-gradient(to right, #ff9800, #fb8c00){% else %}linear-gradient(to right, #4caf50, #43a047){% endif %};">
+                {{ prediction }}%
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            {% if prediction > 70 %}
+                <p class="h5"><i class="fas fa-exclamation-triangle text-danger"></i> High Risk - Please consult a doctor</p>
+            {% elif prediction > 30 %}
+                <p class="h5"><i class="fas fa-exclamation-circle text-warning"></i> Moderate Risk - Consider preventive measures</p>
+            {% else %}
+                <p class="h5"><i class="fas fa-check-circle text-success"></i> Low Risk - Maintain healthy habits</p>
+            {% endif %}
+        </div>
+        
+        <div class="risk-factors">
+            <h5><i class="fas fa-list-ul"></i> Key Contributing Factors:</h5>
+            <div class="factor-item">
+                <i class="fas fa-arrow-up"></i> High BMI increased your risk by 25%
+            </div>
+            <div class="factor-item">
+                <i class="fas fa-arrow-up"></i> Family history contributed 15%
+            </div>
+            <div class="factor-item">
+                <i class="fas fa-arrow-down"></i> Regular exercise reduced risk by 10%
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-download"></i> Download Full Report
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    {% if prediction %}
+  <h3>Your Health Risk: {{ prediction }}%</h3>
+  <p>Risk Level: {{ risk_level }}</p>
+  <p>Recommendation: {{ recommendation }}</p>
+
+  <!-- Report Download Form -->
+  <form action="/generate_report" method="post">
+    <input type="hidden" name="prediction" value="{{ prediction }}">
+    <input type="hidden" name="risk_level" value="{{ risk_level }}">
+    <input type="hidden" name="recommendation" value="{{ recommendation }}">
+    <input type="hidden" name="age" value="{{ age }}">
+    <input type="hidden" name="top_factors" value='{{ top_factors | tojson }}'>
+    
+    <button type="submit">Download Report</button>
+  </form>
+{% endif %}
+
+</div>
+
+<footer>
+    Made with <i class="fas fa-heart text-danger"></i> by Jeeban Jyoti Biswal | 
+    <a href="#" class="text-decoration-none"><i class="fas fa-shield-alt"></i> Privacy Policy</a> | 
+    <a href="#" class="text-decoration-none"><i class="fas fa-info-circle"></i> About</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Add animation to risk meter when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const riskMeter = document.querySelector('.risk-level');
+        if (riskMeter) {
+            // Reset width to 0 then animate to actual value
+            const finalWidth = riskMeter.style.width;
+            riskMeter.style.width = '0%';
+            setTimeout(() => {
+                riskMeter.style.width = finalWidth;
+            }, 100);
+        }
+        
+        // Make form labels clickable for their inputs
+        document.querySelectorAll('.form-label').forEach(label => {
+            const inputId = label.getAttribute('for');
+            if (inputId) {
+                label.addEventListener('click', () => {
+                    document.getElementById(inputId).focus();
+                });
+            }
+        });
+    });
+    
+</script>
+</body>
+</html>

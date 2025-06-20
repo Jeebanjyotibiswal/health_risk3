@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <title>{{ page_title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -176,6 +174,25 @@
       border-bottom: 1px solid var(--medium-gray);
     }
 
+    .patient-info {
+      background: rgba(66, 133, 244, 0.05);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px dashed var(--medical-blue);
+    }
+
+    .patient-info-item {
+      display: flex;
+      margin-bottom: 8px;
+    }
+
+    .patient-info-label {
+      font-weight: 600;
+      min-width: 120px;
+      color: var(--primary-blue);
+    }
+
     @media (max-width: 768px) {
       h1 {
         font-size: 1.8rem;
@@ -228,6 +245,24 @@
   <h1><i class="fas fa-heartbeat" style="color: var(--danger-red);"></i> Health Risk Assessment Report</h1>
 
   <div class="result-card">
+    <!-- Patient Information -->
+    <div class="patient-info">
+      <h3 class="section-title"><i class="fas fa-user-circle"></i> Patient Details</h3>
+      <div class="patient-info-item">
+        <span class="patient-info-label">Name:</span>
+        <span>{{ name }}</span>
+      </div>
+      <div class="patient-info-item">
+        <span class="patient-info-label">Age:</span>
+        <span>{{ age }}</span>
+      </div>
+      <div class="patient-info-item">
+        <span class="patient-info-label">Blood Group:</span>
+        <span>{{ blood_group }}</span>
+      </div>
+    </div>
+
+    <!-- Assessment Results -->
     <div class="info-item">
       <i class="fas fa-notes-medical"></i>
       <div>
@@ -266,13 +301,6 @@
       </div>
     </div>
 
-    <div class="info-item">
-      <i class="fas fa-user-md"></i>
-      <div>
-        <p><strong>Age:</strong> {{ age }}</p>
-      </div>
-    </div>
-
     <h3 class="section-title"><i class="fas fa-clipboard-list"></i> Key Risk Factors</h3>
     <ul>
       {% for factor in top_factors %}
@@ -285,6 +313,9 @@
       <li>Schedule a follow-up with your primary care physician</li>
       <li>Consider lifestyle modifications based on your risk factors</li>
       <li>Monitor any symptoms and report changes to your doctor</li>
+      {% if risk_level == 'High' %}
+      <li>Seek immediate medical attention if symptoms worsen</li>
+      {% endif %}
     </ul>
 
     <div class="btn-group">
@@ -292,7 +323,9 @@
         <input type="hidden" name="prediction" value="{{ prediction }}">
         <input type="hidden" name="risk_level" value="{{ risk_level }}">
         <input type="hidden" name="recommendation" value="{{ recommendation }}">
+        <input type="hidden" name="name" value="{{ name }}">
         <input type="hidden" name="age" value="{{ age }}">
+        <input type="hidden" name="blood_group" value="{{ blood_group }}">
         {% for factor in top_factors %}
           <input type="hidden" name="top_factors" value="{{ factor }}">
         {% endfor %}

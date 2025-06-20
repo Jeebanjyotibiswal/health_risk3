@@ -207,6 +207,28 @@
             border-top: 1px solid rgba(0,0,0,0.05);
         }
         
+        /* Personal info section */
+        .personal-info {
+            background: rgba(79, 195, 247, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px dashed var(--accent);
+        }
+        
+        .personal-info-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .personal-info-title i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .form-section {
@@ -272,10 +294,49 @@
     <div class="header-container">
         <img src="https://cdn-icons-png.flaticon.com/512/3771/3771337.png" alt="Doctor Icon" class="header-icon">
         <h2><i class="fas fa-heartbeat"></i> Health Risk Predictor</h2>
-        <p class="subtitle">Assess your health risks with our AI-powered analysis</p>
+        <p class="subtitle">Assess your cardiovascular health risks with our AI-powered analysis</p>
     </div>
 
     <form action="/predict" method="POST" class="form-section">
+        <!-- Personal Information Section -->
+        <div class="personal-info">
+            <div class="personal-info-title">
+                <i class="fas fa-user-circle"></i> Personal Information
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nameInput" class="form-label">
+                        <i class="fas fa-user"></i> Full Name
+                    </label>
+                    <input type="text" id="nameInput" name="Name" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="ageInput" class="form-label">
+                        <i class="fas fa-birthday-cake"></i> Age
+                    </label>
+                    <input type="number" id="ageInput" name="Age" class="form-control" min="1" max="120" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="bloodGroup" class="form-label">
+                        <i class="fas fa-tint"></i> Blood Group
+                    </label>
+                    <select id="bloodGroup" name="BloodGroup" class="form-select" required>
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Symptoms Section -->
+        <h5 class="mb-4" style="color: var(--secondary);"><i class="fas fa-notes-medical"></i> Please indicate if you experience any of these symptoms:</h5>
         <div class="row">
             {% for symptom in symptoms %}
             <div class="mb-4 col-md-6">
@@ -301,22 +362,6 @@
             {% endfor %}
         </div>
 
-        <!-- Age -->
-        <div class="mb-4">
-            <label for="ageInput" class="form-label">
-                <i class="fas fa-birthday-cake"></i> Age
-            </label>
-            <input type="number" id="ageInput" name="Age" class="form-control" min="1" max="120" required>
-        </div>
-
-        <!-- Additional Fields -->
-        <div class="mb-4">
-            <label for="bmiInput" class="form-label">
-                <i class="fas fa-weight"></i> BMI (Body Mass Index)
-            </label>
-            <input type="number" id="bmiInput" name="BMI" class="form-control" step="0.1" min="10" max="50" required>
-        </div>
-
         <!-- Predict button -->
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary">
@@ -338,7 +383,7 @@
         
         <div class="text-center mt-3">
             {% if prediction > 70 %}
-                <p class="h5"><i class="fas fa-exclamation-triangle text-danger"></i> High Risk - Please consult a doctor</p>
+                <p class="h5"><i class="fas fa-exclamation-triangle text-danger"></i> High Risk - Please consult a doctor immediately</p>
             {% elif prediction > 30 %}
                 <p class="h5"><i class="fas fa-exclamation-circle text-warning"></i> Moderate Risk - Consider preventive measures</p>
             {% else %}
@@ -348,40 +393,14 @@
         
         <div class="risk-factors">
             <h5><i class="fas fa-list-ul"></i> Key Contributing Factors:</h5>
+            {% for factor in top_factors %}
             <div class="factor-item">
-                <i class="fas fa-arrow-up"></i> High BMI increased your risk by 25%
+                <i class="fas fa-arrow-up"></i> {{ factor }}
             </div>
-            <div class="factor-item">
-                <i class="fas fa-arrow-up"></i> Family history contributed 15%
-            </div>
-            <div class="factor-item">
-                <i class="fas fa-arrow-down"></i> Regular exercise reduced risk by 10%
-            </div>
-        </div>
-        
-        <div class="text-center mt-3">
-            <button class="btn btn-outline-primary">
-                <i class="fas fa-download"></i> Download Full Report
-            </button>
+            {% endfor %}
         </div>
     </div>
     {% endif %}
-    {% if prediction %}
-  <h3>Your Health Risk: {{ prediction }}%</h3>
-  <p>Risk Level: {{ risk_level }}</p>
-  <p>Recommendation: {{ recommendation }}</p>
-
-  <!-- Report Download Form -->
-  <form action="/generate_report" method="post">
-    <input type="hidden" name="prediction" value="{{ prediction }}">
-    <input type="hidden" name="risk_level" value="{{ risk_level }}">
-    <input type="hidden" name="recommendation" value="{{ recommendation }}">
-    <input type="hidden" name="age" value="{{ age }}">
-    <input type="hidden" name="top_factors" value='{{ top_factors | tojson }}'>
-    
-    <button type="submit">Download Report</button>
-  </form>
-{% endif %}
 
 </div>
 
@@ -415,7 +434,6 @@
             }
         });
     });
-    
 </script>
 </body>
 </html>

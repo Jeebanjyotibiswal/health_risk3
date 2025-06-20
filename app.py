@@ -3,7 +3,12 @@ import pickle
 import numpy as np
 import os
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from io import BytesIO
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -31,16 +36,18 @@ def predict():
         input_data = []
         symptom_values = {}
 
+        # Collect personal details
+        name = request.form.get("Name", "Anonymous")
+        age = int(request.form.get("Age", 30))
+        blood_group = request.form.get("BloodGroup", "Not specified")
+
         # Collect symptom values
         for symptom in symptoms:
             value = int(request.form.get(symptom, 0))
             input_data.append(value)
             symptom_values[symptom] = value
 
-        # Get age input
-        age = int(request.form.get("Age", 30))
         input_data.append(age)
-
         final_input = np.array(input_data).reshape(1, -1)
 
         # Predict risk
@@ -58,29 +65,31 @@ def predict():
 
         # Risk level and recommendation
         if prediction > 70:
-            risk_level = "high"
-            recommendation = "Immediate consultation recommended"
+            risk_level = "High"
+            recommendation = "Immediate consultation with a cardiologist recommended"
         elif prediction > 30:
-            risk_level = "moderate"
-            recommendation = "Preventive measures advised"
+            risk_level = "Moderate"
+            recommendation = "Preventive measures and regular checkups advised"
         else:
-            risk_level = "low"
-            recommendation = "Maintain healthy lifestyle"
+            risk_level = "Low"
+            recommendation = "Maintain healthy lifestyle with annual checkups"
 
         return render_template("result.html",
-                               prediction=prediction,
-                               risk_level=risk_level,
-                               recommendation=recommendation,
-                               top_factors=top_factors,
-                               age=age,
-                               page_title=f"Results | {prediction}% Risk")
+                            prediction=prediction,
+                            risk_level=risk_level,
+                            recommendation=recommendation,
+                            top_factors=top_factors,
+                            name=name,
+                            age=age,
+                            blood_group=blood_group,
+                            page_title=f"Results | {prediction}% Risk")
 
     except Exception as e:
         app.logger.error(f"Prediction error: {str(e)}")
         return render_template("index.html",
-                               symptoms=symptoms,
-                               prediction="Error",
-                               error_message="Could not process your request. Please try again.")
+                            symptoms=symptoms,
+                            prediction="Error",
+                            error_message="Could not process your request. Please try again.")
 
 # Report PDF download route
 @app.route("/download_report", methods=["POST"])
@@ -90,32 +99,107 @@ def download_report():
         prediction = request.form.get("prediction")
         risk_level = request.form.get("risk_level")
         recommendation = request.form.get("recommendation")
+        name = request.form.get("name")
         age = request.form.get("age")
+        blood_group = request.form.get("blood_group")
         top_factors = request.form.getlist("top_factors")
+        current_date = datetime.now().strftime("%d %B, %Y")
+        current_time = datetime.now().strftime("%I:%M %p")
 
         # Create PDF in memory
         pdf_buffer = BytesIO()
-        c = canvas.Canvas(pdf_buffer)
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(180, 800, "Health Risk Report")
-
+        c = canvas.Canvas(pdf_buffer, pagesize=letter)
+        
+        # Create styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'TitleStyle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor("#1a5276"),
+            spaceAfter=20,
+            alignment=1  # Center aligned
+        )
+        
+        section_style = ParagraphStyle(
+            'SectionStyle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor("#2874a6"),
+            spaceAfter=10,
+            spaceBefore=20,
+            underline=1
+        )
+        
+        # Header with improved visibility
+        title = Paragraph("HEALTH RISK ASSESSMENT REPORT", title_style)
+        title.wrapOn(c, 500, 50)
+        title.drawOn(c, 50, 750)
+        
+        # Date and time - properly positioned
+        c.setFont("Helvetica", 10)
+        c.setFillColor(colors.black)
+        c.drawRightString(550, 780, current_date)
+        c.drawRightString(550, 765, current_time)
+        
+        # Patient Information section with improved heading
+        section = Paragraph("PATIENT INFORMATION", section_style)
+        section.wrapOn(c, 500, 50)
+        section.drawOn(c, 50, 700)
+        
         c.setFont("Helvetica", 12)
-        c.drawString(50, 770, f"Prediction Score: {prediction}%")
-        c.drawString(50, 750, f"Risk Level: {risk_level}")
-        c.drawString(50, 730, f"Recommendation: {recommendation}")
-        c.drawString(50, 710, f"Age: {age}")
-
-        c.drawString(50, 690, "Top Risk Factors:")
-        y = 670
+        c.setFillColor(colors.black)
+        c.drawString(50, 680, f"Name: {name}")
+        c.drawString(50, 660, f"Age: {age}")
+        c.drawString(50, 640, f"Blood Group: {blood_group}")
+        
+        # Results section with improved heading
+        section = Paragraph("ASSESSMENT RESULTS", section_style)
+        section.wrapOn(c, 500, 50)
+        section.drawOn(c, 50, 600)
+        
+        c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
+        c.drawString(50, 580, f"Risk Score: {prediction}%")
+        
+        # Color code risk level
+        if float(prediction) > 70:
+            risk_color = colors.HexColor("#e74c3c")  # Red
+        elif float(prediction) > 30:
+            risk_color = colors.HexColor("#f39c12")  # Orange
+        else:
+            risk_color = colors.HexColor("#27ae60")  # Green
+            
+        c.drawString(50, 560, "Risk Level: ")
+        c.setFillColor(risk_color)
+        c.drawString(120, 560, risk_level)
+        c.setFillColor(colors.black)
+        c.drawString(50, 540, f"Recommendation: {recommendation}")
+        
+        # Risk Factors section with improved heading
+        section = Paragraph("KEY RISK FACTORS", section_style)
+        section.wrapOn(c, 500, 50)
+        section.drawOn(c, 50, 500)
+        
+        y = 480
+        c.setFont("Helvetica", 12)
+        c.setFillColor(colors.black)
         for factor in top_factors:
-            c.drawString(70, y, f"- {factor}")
+            c.drawString(70, y, f"• {factor}")
             y -= 20
-
+        
+        # Footer
+        c.setFont("Helvetica-Oblique", 10)
+        c.drawString(50, 100, "This report is generated by Health Risk Predictor")
+        c.drawString(50, 85, "Note: This is not a medical diagnosis. Please consult your doctor.")
+        
         c.showPage()
         c.save()
         pdf_buffer.seek(0)
 
-        return send_file(pdf_buffer, as_attachment=True, download_name="Health_Risk_Report.pdf", mimetype='application/pdf')
+        return send_file(pdf_buffer, as_attachment=True, 
+                        download_name=f"Health_Report_{name.replace(' ', '_')}.pdf", 
+                        mimetype='application/pdf')
 
     except Exception as e:
         app.logger.error(f"Report generation error: {str(e)}")
